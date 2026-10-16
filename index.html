@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致我喜欢的人</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffd6e0, #ffb6c1);
+            font-family: "Microsoft Yahei", sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 飘落爱心 */
+        .heart {
+            position: absolute;
+            color: #ff4d6d;
+            font-size: 24px;
+            animation: fall linear infinite;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        .box {
+            background: rgba(255,255,255,0.85);
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(255,70,100,0.25);
+            text-align: center;
+            z-index: 10;
+            max-width: 420px;
+        }
+        .day-count{
+            font-size: 20px;
+            color:#d6336c;
+            margin-bottom:16px;
+            font-weight:bold;
+        }
+        h1 {
+            color: #d6336c;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        p {
+            color: #662549;
+            font-size:17px;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+        .btn-group {
+            display: flex;
+            gap:24px;
+            justify-content: center;
+        }
+        #yes {
+            background-color: #ff4d6d;
+            color:white;
+            border:0;
+            padding:14px 32px;
+            border-radius:99px;
+            font-size:18px;
+            cursor:pointer;
+            transition:0.2s;
+        }
+        #yes:hover {
+            transform: scale(1.08);
+        }
+        #no {
+            background-color:#cccccc;
+            color:#333;
+            border:0;
+            padding:14px 32px;
+            border-radius:99px;
+            font-size:18px;
+            position:relative;
+            cursor:pointer;
+        }
+        .success-pop {
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.5);
+            z-index:99;
+            align-items:center;
+            justify-content:center;
+        }
+        .pop-content{
+            background:#fff;
+            padding:45px;
+            border-radius:20px;
+            text-align:center;
+        }
+        .pop-content h2{
+            color:#d6336c;
+            font-size:32px;
+            margin-bottom:15px;
+        }
+        .tip{
+            position:fixed;
+            bottom:30px;
+            left:50%;
+            transform:translateX(-50%);
+            background:rgba(255,255,255,0.8);
+            padding:8px 16px;
+            border-radius:99px;
+            font-size:14px;
+            color:#d6336c;
+            z-index: 5;
+        }
+        canvas{
+            position: fixed;
+            top:0;
+            left:0;
+            z-index: 2;
+            pointer-events: none;
+            /* 关键：画布透明，不会盖住背景 */
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+<canvas id="fireworks"></canvas>
+<div class="box">
+    <div class="day-count" id="dayText"></div>
+    <h1>💌 有句话想对你说</h1>
+    <p>
+        遇见你的时候，所有星星都落在我头上。<br>
+        慢慢相处，越来越喜欢你。<br>
+        我不想只做朋友，<br>
+        你愿意做我的恋人吗？
+    </p>
+    <div class="btn-group">
+        <button id="yes">我愿意</button>
+        <button id="no">再想想</button>
+    </div>
+</div>
+<div class="tip">点击页面任意位置播放音乐🎵</div>
+
+<div class="success-pop" id="pop">
+    <div class="pop-content">
+        <h2>🥳太好了！</h2>
+        <p>谢谢你愿意答应我，往后的日子一起走。</p>
+        <button onclick="document.getElementById('pop').style.display='none'" style="margin-top:20px;padding:10px 24px;border-radius:8px;border:none;background:#ff4d6d;color:white">确定</button>
+    </div>
+</div>
+
+<!-- 背景音乐 -->
+<audio id="bgMusic" loop preload="auto">
+    <source src="https://music.163.com/song/media/outer/url?id=186055.mp3" type="audio/mpeg">
+
+<script>
+const bgMusic = document.getElementById('bgMusic');
+// 页面点击播放音乐
+document.body.addEventListener('click', ()=>{
+    bgMusic.play().catch(e=>{});
+}, {once:true})
+
+// ====================== 相遇天数【修改这里！】======================
+// 改成你们相识的日期：年,月-1,日（月份要减1！比如2025-02-14写 2025,1,14）
+const startDate = new Date(2024, 0, 1);
+// ==================================================================
+function calcDays(){
+    const now = new Date();
+    const diff = Math.floor((now - startDate)/(1000*60*60*24));
+    document.getElementById("dayText").innerText = `从遇见你的那天起，已经 ${diff} 天啦`;
+}
+calcDays();
+
+// 飘落爱心
+function createHeart(){
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.innerText = '❤';
+    heart.style.left = Math.random()*100 + 'vw';
+    heart.style.animationDuration = 3 + Math.random()*5 + 's';
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(),8000);
+}
+setInterval(createHeart,300);
+
+// 同意按钮，触发烟花+弹窗
+document.getElementById("yes").onclick = function(){
+    document.getElementById("pop").style.display="flex";
+    startFireworks();
+}
+
+// 拒绝按钮 鼠标悬浮逃跑
+const noBtn = document.getElementById("no");
+noBtn.onmouseover = function(){
+    const x = Math.random()*200 -100;
+    const y = Math.random()*200 -100;
+    noBtn.style.transform = `translate(${x}px,${y}px)`;
+}
+
+// ========== 烟花代码【修复：半透明擦除，不再变黑背景】 ==========
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+let w, h;
+function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize',resize);
+
+class Particle{
+    constructor(x,y,color,speed,angle,decay){
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.vx = Math.cos(angle)*speed;
+        this.vy = Math.sin(angle)*speed;
+        this.alpha = 1;
+        this.decay = decay;
+    }
+    update(){
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= this.decay;
+    }
+    draw(){
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,2,0,Math.PI*2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.restore();
+    }
+}
+let particles = [];
+function createFirework(x,y){
+    const colors = ['#ff4d6d','#ffdd00','#4cc9f0','#ffffff','#ff9ebb'];
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    for(let i=0;i<80;i++){
+        const angle = (Math.PI*2/80)*i;
+        const speed = Math.random()*4+2;
+        particles.push(new Particle(x,y,color,speed,angle,0.008));
+    }
+}
+function startFireworks(){
+    for(let i=0;i<6;i++){
+        setTimeout(()=>{
+            createFirework(Math.random()*w*0.6 + w*0.2, Math.random()*h*0.4 + h*0.2);
+        },i*300);
+    }
+}
+function animate(){
+    requestAnimationFrame(animate);
+    // ✅ 修复点：rgba最后数值0.08，淡擦除，不会覆盖粉色背景
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(0,0,w,h);
+    for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.update();
+        p.draw();
+        if(p.alpha <=0) particles.splice(i,1);
+    }
+}
+animate();
+</script>
+</body>
+</html>
