@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>致最爱的宁宁宝宝</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ffd6e0, #ffb6c1);
+        font-family: "Microsoft Yahei", sans-serif;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .heart {
+        position: absolute;
+        color: #ff4d6d;
+        font-size: 24px;
+        animation: fall linear infinite;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-10vh) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(110vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    .box {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 50px 40px;
+        border-radius: 24px;
+        box-shadow: 0 8px 30px rgba(255, 70, 100, 0.25);
+        text-align: center;
+        z-index: 10;
+        max-width: 420px;
+    }
+
+    .day-count {
+        font-size: 20px;
+        color: #d6336c;
+        margin-bottom: 16px;
+        font-weight: bold;
+    }
+
+    h1 {
+        color: #d6336c;
+        margin-bottom: 20px;
+        font-size: 28px;
+    }
+
+    p {
+        color: #662549;
+        font-size: 17px;
+        line-height: 1.8;
+        margin-bottom: 35px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+    }
+
+    #yes {
+        background-color: #ff4d6d;
+        color: white;
+        border: 0;
+        padding: 14px 32px;
+        border-radius: 99px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    #yes:hover {
+        transform: scale(1.08);
+    }
+
+    #no {
+        background-color: #cccccc;
+        color: #333;
+        border: 0;
+        padding: 14px 32px;
+        border-radius: 99px;
+        font-size: 18px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .success-pop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pop-content {
+        background: #fff;
+        padding: 45px;
+        border-radius: 20px;
+        text-align: center;
+    }
+
+    .pop-content h2 {
+        color: #d6336c;
+        font-size: 32px;
+        margin-bottom: 15px;
+    }
+
+    .tip {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        padding: 8px 16px;
+        border-radius: 99px;
+        font-size: 14px;
+        color: #d6336c;
+        z-index: 10;
+    }
+
+    /* ========= CSS烟花 ========= */
+    .firework-wrap{
+        position:fixed;
+        top:0;
+        left:0;
+        width:100vw;
+        height:100vh;
+        z-index:9999;
+        pointer-events:none;
+        display:none;
+    }
+    .fire{
+        position:absolute;
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        animation:fireAnim 1.2s ease-out forwards;
+    }
+    @keyframes fireAnim{
+        0%{transform:translate(0,0) scale(1);opacity:1;}
+        100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0;}
+    }
+</style>
+</head>
+<body>
+
+<div class="firework-wrap" id="fwWrap"></div>
+
+<div class="box">
+    <div class="day-count" id="dayText"></div>
+    <h1>💌 有句话一直想对你说</h1>
+    <p>
+        遇见你的时候，所有星星都落在我头上。<br>
+        慢慢相处，越来越喜欢你。<br>
+        亲爱的宁宁宝宝，<br>
+        你愿意做我的女朋友吗？
+    </p>
+    <div class="btn-group">
+        <button id="yes">我愿意</button>
+        <button id="no">再想想</button>
+    </div>
+</div>
+
+<div class="tip">点击页面任意位置播放音乐🎵</div>
+
+<div class="success-pop" id="pop">
+    <div class="pop-content">
+        <h2>🥳太好了！</h2>
+        <p>谢谢你愿意答应我，往后的日子一起走。</p>
+        <button onclick="document.getElementById('pop').style.display='none'" style="margin-top:20px;padding:10px 24px;border-radius:8px;border:none;background:#ff4d6d;color:white">确定</button>
+    </div>
+</div>
+
+<script>
+// ====================== 相遇天数【修改这里！】======================
+const startDate = new Date(2026, 9, 2);
+// ==================================================================
+function calcDays() {
+    const now = new Date();
+    const diff = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+    document.getElementById("dayText").innerText = `从遇见你的那天起，已经 ${diff} 天啦`;
+}
+calcDays();
+
+// ====================== 音乐：纸短情长 ======================
+let audioCtx;
+let musicPlaying = false;
+const notes = [
+    {n: 349.23, t:0.4},
+    {n: 392.00, t:0.4},
+    {n: 440.00, t:0.6},
+    {n: 392.00, t:0.4},
+    {n: 349.23, t:0.4},
+    {n: 329.63, t:0.6},
+
+    {n: 293.66, t:0.4},
+    {n: 329.63, t:0.4},
+    {n: 349.23, t:0.6},
+    {n: 329.63, t:0.4},
+    {n: 293.66, t:0.4},
+    {n: 261.63, t:0.6},
+
+    {n: 349.23, t:0.4},
+    {n: 392.00, t:0.4},
+    {n: 440.00, t:0.6},
+    {n: 493.88, t:0.4},
+    {n: 440.00, t:0.4},
+    {n: 392.00, t:0.6},
+
+    {n: 349.23, t:0.4},
+    {n: 392.00, t:0.4},
+    {n: 349.23, t:0.6},
+    {n: 329.63, t:0.4},
+    {n: 293.66, t:0.4},
+    {n: 261.63, t:0.8},
+];
+let noteIndex = 0;
+
+function playNote(freq, duration){
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime+0.05);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+function playMelody(){
+    if(!musicPlaying) return;
+    const note = notes[noteIndex];
+    playNote(note.n, note.t);
+    noteIndex = (noteIndex + 1) % notes.length;
+    setTimeout(playMelody, note.t * 1000);
+}
+
+document.body.addEventListener('click', ()=>{
+    if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(!musicPlaying){
+        musicPlaying = true;
+        playMelody();
+    }
+}, {once:true});
+
+// ====================== 飘落爱心 ======================
+function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.innerText = '❤';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = 3 + Math.random() * 5 + 's';
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 8000);
+}
+setInterval(createHeart, 300);
+
+
+// ====================== CSS烟花函数 ======================
+function startFireworks(){
+    const wrap = document.getElementById('fwWrap');
+    wrap.style.display="block";
+    const colors = ['#ff4d6d','#ffdd00','#4cc9f0','#ffffff','#ff9ebb'];
+
+    //多组烟花
+    for(let burst=0;burst<6;burst++){
+        setTimeout(()=>{
+            const x = Math.random()*window.innerWidth*0.6 + window.innerWidth*0.2;
+            const y = Math.random()*window.innerHeight*0.4 + window.innerHeight*0.2;
+            //每一朵烟花粒子
+            for(let i=0;i<80;i++){
+                const fire = document.createElement('div');
+                fire.className='fire';
+                const angle = Math.PI*2/80*i;
+                const dist = 50 + Math.random()*120;
+                const tx = Math.cos(angle)*dist;
+                const ty = Math.sin(angle)*dist;
+                fire.style.setProperty('--tx',tx+'px');
+                fire.style.setProperty('--ty',ty+'px');
+                fire.style.left = x+'px';
+                fire.style.top = y+'px';
+                fire.style.background = colors[Math.floor(Math.random()*colors.length)];
+                wrap.appendChild(fire);
+                //自动清理粒子
+                setTimeout(()=>fire.remove(),1200);
+            }
+        }, burst*300);
+    }
+    //全部结束隐藏外层容器
+    setTimeout(()=>wrap.style.display="none", 2200);
+}
+
+// ====================== 按钮逻辑 ======================
+document.getElementById("yes").onclick = function () {
+    document.getElementById("pop").style.display = "flex";
+    startFireworks();
+}
+
+const noBtn = document.getElementById("no");
+noBtn.onmouseover = function () {
+    const x = Math.random() * 200 - 100;
+    const y = Math.random() * 200 - 100;
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+}
+</script>
+
+</body>
+</html>
